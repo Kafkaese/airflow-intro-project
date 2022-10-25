@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.providers.http.sensors.http import HttpSensor
 
 from datetime import datetime
 
@@ -21,3 +22,8 @@ with DAG('user_processing', start_date=datetime(2022, 1, 1), schedule_interval='
     '''
     )
     
+    is_api_available = HttpSensor(
+        task_id = 'is_api_available',
+        http_conn_id = 'USER_AP',
+        endpoint='/api' 
+    )
