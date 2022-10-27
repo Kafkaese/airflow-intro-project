@@ -12,6 +12,8 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.http.operators.http import SimpleHttpOperator
 
+from airflow.providers.postgres.hooks.postgres import PostgresHook
+
 from datetime import datetime
 
 def _process_user(ti):
@@ -28,6 +30,11 @@ def _process_user(ti):
     })
     
     processes_user.to_csv()
+    
+def _store_user():
+    hook = PostgresHook(postgres_conn_id = 'postgres')
+    hook.copy_expert(sql = "COPY users FROM stdin WITH DELIMITER as ',' ",
+                     filename= '/tmp/processed_user.csv')
     
 
 with DAG('user_processing', start_date=datetime(2022, 1, 1), schedule_interval='@daily',
@@ -66,4 +73,9 @@ with DAG('user_processing', start_date=datetime(2022, 1, 1), schedule_interval='
     process_user = PythonOperator(
         task_id = 'process_user',
         python_callable= _process_user
+    )
+    
+    store_user = PythonOperator(
+        task_id = 'store_user',
+        python_callable=_store_user
     )
