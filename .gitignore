@@ -234,3 +234,6 @@ licenses/LICENSES-ui.txt
 # log files
 *.py.log
 /logs
+
+# docker compose yaml
+docker-compose.yaml
